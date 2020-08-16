@@ -1,15 +1,21 @@
 import React, { Component } from 'react';
 import './App.css';
 
+import SearchForm from './components/SearchForm'
+import FrameTable from './components/FrameTable'
+
+const defaultMethod = "1"
+
 class App extends Component {
 
   constructor(props) {
     super(props);
 
     this.state = {
+      method: defaultMethod,
       frameList: [],
       wasm: {},
-      game: null
+      search: null,
     };
   }
 
@@ -21,8 +27,8 @@ class App extends Component {
     try {
       const wasm = await import('masuda-wasm');
       this.setState({ wasm }, () => {
-        this.setState({ game: this.state.wasm.Game.new(0) }, () => {
-          this.setState( { frameList: this.state.game.get_frames(10, "1") } )
+        this.setState({ search: this.state.wasm.Search.new(0) }, () => {
+          this.setState({ frameList: this.state.search.get_frames(10, this.state.method) })
         });
       });
     } catch (err) {
@@ -31,49 +37,19 @@ class App extends Component {
   };
 
   render() {
-    const { frameList = [], game = null } = this.state;
+    const { frameList = [], method = defaultMethod, search = null } = this.state;
 
-    const handleClick = () => {
+    const setMethod = (methodName) => {
       this.setState({
-        frameList: [...frameList, game.method_1()]
-      });
-    };
+        method: methodName,
+        frameList: this.state.search.get_frames(10, this.state.method)
+      })
+    }
 
     return (
       <>
-        <button onClick={handleClick}>
-          PID
-        </button>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Frame</th>
-              <th>PID</th>
-              <th>HP</th>
-              <th>ATK</th>
-              <th>DEF</th>
-              <th>SPA</th>
-              <th>SPD</th>
-              <th>SPE</th>
-
-            </tr>
-          </thead>
-          <tbody>
-            {frameList.map((frame, index) =>
-              <tr>
-                <td>{index}</td>
-                <td>{frame.pid.toString(16)}</td>
-                <td>{frame.hp}</td>
-                <td>{frame.atk}</td>
-                <td>{frame.def}</td>
-                <td>{frame.spa}</td>
-                <td>{frame.spd}</td>
-                <td>{frame.spe}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <SearchForm method={method} setMethod={setMethod} />
+        <FrameTable frameList={frameList} />
       </>
     )
   }

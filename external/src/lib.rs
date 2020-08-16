@@ -12,8 +12,10 @@ use masuda::pokemon::Pokemon;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub struct Game {
+pub struct Search {
     lcrng: LinearCongruential,
+    tid: u16,
+    sid: u16,
 }
 
 #[wasm_bindgen]
@@ -28,6 +30,7 @@ pub struct Frame {
     pub nature: u8,
     pub ability: u8,
     pub gender: u8,
+    pub shiny: bool,
 }
 
 impl From<Pokemon> for Frame {
@@ -43,28 +46,40 @@ impl From<Pokemon> for Frame {
             nature: p.get_nature() as u8,
             ability: p.get_ability(),
             gender: p.get_ability(),
+            shiny: false,
         }
     }
 }
 
 #[wasm_bindgen]
-impl Game {
+impl Search {
     pub fn new(initial_seed: u32) -> Self {
-        Game{
+        Search{
             lcrng: LinearCongruential::new(initial_seed),
+            tid: 0,
+            sid: 0,
         }
     }
 
     pub fn method_1(&mut self) -> Frame {
-        Frame::from(self.lcrng.method_1())
+        let p = self.lcrng.method_1();
+        let mut f = Frame::from(self.lcrng.method_1());
+        f.shiny = p.get_shininess(self.tid, self.sid);
+        f
     }
 
     pub fn method_2(&mut self) -> Frame {
-        Frame::from(self.lcrng.method_2())
+        let p = self.lcrng.method_1();
+        let mut f = Frame::from(self.lcrng.method_2());
+        f.shiny = p.get_shininess(self.tid, self.sid);
+        f
     }
 
     pub fn method_4(&mut self) -> Frame {
-        Frame::from(self.lcrng.method_4())
+        let p = self.lcrng.method_4();
+        let mut f = Frame::from(self.lcrng.method_2());
+        f.shiny = p.get_shininess(self.tid, self.sid);
+        f
     }
 
     pub fn get_frames(&mut self, n: u32, method: &str) -> Array {
