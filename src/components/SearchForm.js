@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField } from '@material-ui/core';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -17,21 +17,25 @@ const methods = [
         label: 'Method 4',
     },
 ]
- 
+
 const useStyles = makeStyles((theme) => ({
     root: {
-      '& .MuiTextField-root': {
-        margin: theme.spacing(1),
-        width: '25ch',
-      },
+        '& .MuiTextField-root': {
+            margin: theme.spacing(1),
+            width: '25ch',
+        },
     },
-  }));
+}));
 
 const SearchForm = (props) => {
     const classes = useStyles();
 
     const handleMethodChange = (event) => {
         props.setMethod(event.target.value);
+    };
+
+    const handleNumFramesChange = (event) => {
+        props.setNumFrames(event.target.value);
     };
 
     return (
@@ -50,6 +54,13 @@ const SearchForm = (props) => {
                         </MenuItem>
                     ))}
                 </TextField>
+                <TextField
+                    id="numFrames"
+                    type="number"
+                    label="max frames"
+                    value={props.numFrames}
+                    onChange={handleNumFramesChange}
+                />
             </div>
         </form>
     )
